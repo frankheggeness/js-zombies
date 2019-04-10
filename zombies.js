@@ -7,7 +7,11 @@
  * @param {string} name     The item's name.
  * @property {string} name
  */
-
+class Item {
+  constructor(name) {
+    this.name = name
+  }
+}
 
 /**
  * Class => Weapon(name, damage)
@@ -24,6 +28,14 @@
  * @param {number} damage   The weapon's damage.
  * @property {number} damage
  */
+
+class Weapon extends Item {
+  constructor(name, damage) {
+    super(name);
+    this.damage = damage;
+
+  }
+}
 
 
 /**
@@ -48,7 +60,12 @@
  * @param {number} energy     The energy the food provides.
  * @property {number} energy
  */
-
+class Food extends Item {
+  constructor(name, energy) {
+    super(name);
+    this.energy = energy;
+  }
+}
 
 /**
  * Food Extends Item Class
@@ -78,6 +95,87 @@
  * @property {method} getPack              Returns private variable `pack`.
  * @property {method} getMaxHealth         Returns private variable `maxHealth`.
  */
+class Player {
+  constructor(name, health, strength, speed) {
+    this.name = name;
+    this.health = health;
+    this.strength = strength;
+    this.speed = speed;
+    this._pack = [];
+    this._maxHealth = health;
+    this.isAlive = true;
+    this.equipped = false;
+    this.getPack = function () {
+      return this._pack;
+    }
+    this.getMaxHealth = function () {
+      return this._maxHealth;
+    }
+
+  }
+  checkPack() {
+    console.log(this.getPack().toString())
+  }
+  takeItem(item) {
+    if (this._pack.length < 3) {
+      console.log(`${this.name} has picked up ${item.name}`)
+      this._pack.push(item)
+      return true;
+    } else {
+      console.log(`${this.name}'s pack is full. The item could not be picked up.`)
+      return false
+    }
+  }
+  discardItem(item) {
+    if (this._pack.indexOf(item) === -1) {
+      console.log(`${item.name} could not be found. Nothing was discarded.`)
+      return false;
+    } else {
+      let spliceIndex = this._pack.indexOf(item)
+      this._pack.splice(spliceIndex, 1)
+      console.log(`${this.name} has dropped ${item.name}`)
+      return true
+    }
+  }
+  equip(itemEquip) {
+    if (this._pack.indexOf(itemEquip) === -1) {
+      console.log('no item found')
+    } else if (itemEquip instanceof Weapon) {
+      if (this.equipped = false) {
+        this.discardItem(itemEquip);
+        this.equipped = itemEquip;
+      } else {
+        let currentEquip = this.equipped;
+        discardItem(itemEquip);
+        takeItem(currentEquip);
+        this.equipped = itemEquip;
+      }
+    }
+  }
+
+
+
+  // equip(itemToEquip) {
+  //   if (itemtoEquip instanceof Weapon) {
+  //     if (this.equipped === false) {
+  //       this.discardItem(itemToEquip);
+  //       this.equipped = itemToEquip;
+  //     } else {
+  //       let newPack = this.equipped;
+  //       discardItem(itemToEquip);
+  //       takeItem(newPack);
+  //       this.equipped = itemToEquip;
+
+  //     }
+  //   } else {
+  //     console.log('You do not have this item')
+  //     return false;
+  //   }
+  // }
+
+
+}
+
 
 
 /**
@@ -95,9 +193,13 @@
 
 /**
  * Player Class Method => takeItem(item)
- * -----------------------------
+ * ----  return this._pack;
+  }
+  getMaxHealth() {
+    return this._maxHealth;
+  }-------------------------
  * Player takes an item from the world and places it into their pack.
- *
+ *' pack is full. Item could not be stored'
  * Player's pack can only hold a maximum of 3 items, so if they try to add more
  *   than that to the pack, return false.
  * Before returning true or false, print a message containing the player's
