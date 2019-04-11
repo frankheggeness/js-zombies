@@ -8,6 +8,9 @@
  * @property {string} name
  */
 
+function Item(name) {
+  this.name = name;
+}
 
 /**
  * Class => Weapon(name, damage)
@@ -24,7 +27,11 @@
  * @param {number} damage   The weapon's damage.
  * @property {number} damage
  */
-
+function Weapon(name, damage) {
+  Item.call(this, name);
+  this.damage = damage;
+}
+Weapon.prototype = Object.create(Item.prototype)
 
 /**
  * Weapon Extends Item Class
@@ -49,7 +56,11 @@
  * @property {number} energy
  */
 
-
+function Food(name, energy) {
+  Item.call(this, name);
+  this.energy = energy;
+}
+Food.prototype = Object.create(Item.prototype)
 /**
  * Food Extends Item Class
  * -----------------------------
@@ -79,6 +90,27 @@
  * @property {method} getMaxHealth         Returns private variable `maxHealth`.
  */
 
+function Player(name, health, strength, speed) {
+  this.name = name;
+  this.health = health;
+  this.strength = strength
+  this.speed = speed;
+  this.isAlive = true;
+  this.equipped = false;
+  const pack = [];
+  const maxHealth = health;
+  this.getPack = function () {
+    return pack;
+  }
+  this.getMaxHealth = function () {
+    return maxHealth;
+  }
+}
+
+Player.prototype.getPack = function () {
+  throw new Error('Method not defined')
+}
+
 
 /**
  * Player Class Method => checkPack()
@@ -91,6 +123,9 @@
  *
  * @name checkPack
  */
+Player.prototype.checkPack = function () {
+  console.log(this.getPack)
+}
 
 
 /**
@@ -110,6 +145,16 @@
  * @param {Item/Weapon/Food} item   The item to take.
  * @return {boolean} true/false     Whether player was able to store item in pack.
  */
+Player.prototype.takeItem = function (item) {
+  if (this.getPack().length < 3) {
+    console.log(`${this.name} has picked up ${item.name}`)
+    this.getPack().push(item)
+    return true;
+  } else {
+    console.log(`${this.name}'s pack is full. The item could not be picked up.`)
+    return false
+  }
+}
 
 
 /**
@@ -137,7 +182,17 @@
  * @param {Item/Weapon/Food} item   The item to discard.
  * @return {boolean} true/false     Whether player was able to remove item from pack.
  */
-
+Player.prototype.discardItem = function (item) {
+  if (this.getPack().indexOf(item) === -1) {
+    console.log(`${item.name} could not be found. Nothing was discarded.`)
+    return false;
+  } else {
+    let spliceIndex = this.getPack().indexOf(item)
+    this.getPack().splice(spliceIndex, 1)
+    console.log(`${this.name} has dropped ${item.name}`)
+    return true
+  }
+}
 
 /**
  * Player Class Method => equip(itemToEquip)
@@ -158,7 +213,20 @@
  * @name equip
  * @param {Weapon} itemToEquip  The weapon item to equip.
  */
-
+Player.prototype.equip = function (itemToEquip) {
+  const isWeapon = itemToEquip instanceof Weapon;
+  const index = this.getPack().indexOf(itemToEquip);
+  if (isWeapon && index != -1) {
+    this.discardItem(itemToEquip)
+    if (this.equipped === false) {
+      this.equipped = itemToEquip;
+    } else {
+      let currentEquip = this.equipped;
+      this.equipped = itemToEquip;
+      this.takeItem(currentEquip);
+    }
+  }
+}
 
 /**
  * Player Class Method => eat(itemToEat)
@@ -178,7 +246,19 @@
  * @name eat
  * @param {Food} itemToEat  The food item to eat.
  */
-
+Player.prototype.eat = function (itemToEat) {
+  const inPack = this.getPack().indexOf(itemToEat)
+  if (inPack === -1) {
+    return false
+  } else if (itemToEat instanceof Food) {
+    this.discardItem(itemToEat);
+    if (this.health + itemToEat.energy < this.getMaxHealth()) {
+      this.health = this.health + itemToEat.energy;
+    } else {
+      this.health = this.getMaxHealth();
+    }
+  }
+}
 
 /**
  * Player Class Method => useItem(item)
@@ -192,6 +272,17 @@
  * @name useItem
  * @param {Item/Weapon/Food} item   The item to use.
  */
+Player.prototype.useItem = function (item) {
+  if (this.getPack().indexOf(item) === -1) {
+    return false;
+  } else {
+    if (item instanceof Weapon) {
+      this.equip(item);
+    } else if (item instanceof Food) {
+      this.eat(item);
+    }
+  }
+}
 
 
 /**
@@ -207,6 +298,15 @@
  * @name equippedWith
  * @return {string/boolean}   Weapon name or false if nothing is equipped.
  */
+Player.prototype.equippedWith = function () {
+  if (this.equipped === false) {
+    console.log(`${this.name} has no weapon equipped`);
+    return false
+  } else {
+    console.log(`${this.name} has equipped a ${this.equipped.name}`)
+    return this.equipped.name
+  }
+}
 
 
 /**
@@ -225,6 +325,13 @@
  * @property {boolean} isAlive      Default value should be `true`.
  */
 
+function Zombie(health, strength, speed) {
+  Zombie.prototype.health = health;
+  Zombie.prototype.strength = strength;
+  Zombie.prototype.speed = speed;
+  Zombie.prototype.isAlive = true;
+  const maxHealth = health;
+}
 
 /**
  * Class => FastZombie(health, strength, speed)
@@ -240,7 +347,10 @@
  * @param {number} strength         The zombie's strength.
  * @param {number} speed            The zombie's speed.
  */
-
+function FastZombie(health, strength, speed) {
+  Zombie.call(this, health, strength, speed);
+}
+FastZombie.prototype = Object.create(Zombie.prototype)
 
 /**
  * FastZombie Extends Zombie Class
@@ -263,7 +373,10 @@
  * @param {number} strength         The zombie's strength.
  * @param {number} speed            The zombie's speed.
  */
-
+function StrongZombie(health, strength, speed) {
+  Zombie.call(this, health, strength, speed)
+}
+StrongZombie.prototype = Object.create(Zombie.prototype)
 
 /**
  * StrongZombie Extends Zombie Class
@@ -287,6 +400,10 @@
  * @param {number} speed            The zombie's speed.
  */
 
+function RangedZombie(health, strength, speed) {
+  Zombie.call(this, health, strength, speed);
+}
+RangedZombie.prototype = Object.create(Zombie.prototype)
 
 /**
  * RangedZombie Extends Zombie Class
@@ -309,8 +426,10 @@
  * @param {number} strength         The zombie's strength.
  * @param {number} speed            The zombie's speed.
  */
-
-
+function ExplodingZombie(health, strength, speed) {
+  Zombie.call(this, health, strength, speed);
+}
+ExplodingZombie.prototype = Object.create(Zombie.prototype);
 /**
  * ExplodingZombie Extends Zombie Class
  * -----------------------------
